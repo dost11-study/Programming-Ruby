@@ -11,3 +11,7 @@
   - ~ 2장까지 학습
   - Speaker: 강상우
 
+## 추가
+Rails 학습 시 유용한 사이트
+- https://rails.insomenia.com/getting_started
+- https://guides.rubyonrails.org/getting_started.html
