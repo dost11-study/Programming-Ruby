@@ -214,10 +214,269 @@ end
   - DEBUG
 
 의미를 갖는 첫 번째 문자 이후에는 알파벳, 숫자, 밑줄(_) 등 어떠한 조합이 와도 상관없다 (단, @ 다음에는 숫자 불가능)
-인스턴스 변수는 단어 사이에 밑줄을 넣어서 구분하고(instance_var, 클래스 이름의 경우에는 MixedCase와 같이 각 단어의 첫 글자를 대문자로 한다.
+인스턴스 변수는 단어 사이에 밑줄을 넣어서 구분하고(instance_var), 클래스 이름의 경우에는 MixedCase와 같이 각 단어의 첫 글자를 대문자로 한다.
 메서드 이름은 ?, !, = 기호로 끝날 수 있다.
 
 ### 배열과 해시
 
 루비의 배열과 해시는 색인된 컬렉션이다. 둘다 키를 이용해 접근할 수 있는 객체 모음이다.
 해시는 어떠한 객체든 키로 사용 가능하지만 배열은 정수만 사용할 수 있다.
+배열과 해시 모두 새로운 요소를 담기 위해 공간이 더 필요하면 스스로 확장한다. (아마 1.5배 혹은 2배씩 늘리는 자료구조 비슷하게 가져갈듯)
+
+```ruby
+# 정수, 문자열, 부동소수점으로 표현된 다양한 타입의 구성 요소를 가지는 배열도 생성이 가능하다
+a = [ 1, 'cat', 3.14 ]
+a[2] = nil
+```
+
+많은 언어에서 nil(혹은 null) 아무 객체도 아님을 의미한다.
+하지만 루비는 nil 또한 아무것도 아님을 표현하는 하나의 객체일 뿐이다.
+
+단어의 배열을 만들 때, 모든 단어를 따옴표로 묶고 사이사이에 쉼표를 넣는 것 대신 루비에서는 단축 문법인 %w 를 이용해 반복 작업을 피할 수 있다.
+```ruby
+a = [ 'ant', 'bee', 'cat', 'dog', 'elk' ]
+# 다음과 같다
+a = %w{ ant bee cat dog elk }
+```
+
+해시 리터럴은 대괄호 대신 중괄호를 사용해야 한다.
+
+```ruby
+inst_section = {
+  'cello' => 'string',
+  'clarinet' => 'woodwind',
+  'drum' => 'percussion',
+  'oboe' => 'woodwind',
+  'trumpet' => 'brass',
+  'violin' => 'string'
+}
+```
+
+해시에서 키와 값에는 어떤 객체가 와도 상관없다.
+값이 배열이거나 키가 해시인 해시를 만드는 것도 가능하다.
+p 메서드는 nil 과 같은 객체도 명시적으로 출력한다
+
+```ruby
+p inst_section['oboe'] # => "woodwind"
+p inst_section['cello'] # => "string"
+p inst_section['bassoon'] # => nil
+```
+
+객체가 없을 때 nil 반환을 통해 조건문에서 유용하게 사용할 수 있다.
+만약, 기본값을 바꾸고 싶다면
+
+```ruby
+histogram = Hash.new(0) # 기본값 0 지정
+histogram['ruby'] # => 0
+```
+
+### 심벌
+
+```ruby
+NORTH = 1
+EAST = 2
+SOUTH = 3
+WEST = 4
+```
+
+위와 같은 미리 정의한 상수 대신에 심벌을 사용하면 미리 정의할 필요 없는 동시에 유일한 값이 보장되는 상수 이름이다.
+
+```ruby
+walk(:north)
+look(:east)
+```
+
+심벌에는 값을 직접 부여할 필요없이 루비가 직업 고유한 값을 부여한다.
+프로그램의 어디에서 사용하더라도 특정한 이름의 심벌은 항상 같은 값을 가진다.
+따라서 아래와 같이 사용할 수 있다.
+
+```ruby
+def walk(direction)
+  if direction == :north
+    # ...
+  end
+end
+```
+
+심벌은 해시의 키로 자주 사용된다. 앞선 해시 리터럴 대신 해시 심볼을 사용할 수 있다.
+
+```ruby
+inst_section = {
+  :cello => 'string',
+  :clarinet => 'woodwind',
+  :drum => 'percussion',
+  :oboe => 'woodwind',
+  :trumpet => 'brass',
+  :violin => 'string'
+}
+
+inst_section[:oboe] # => "woodwind"
+# 문자열과 심벌은 다르다
+inst_section['cello'] # => nil
+```
+
+루비에서는 해시의 키로 심벌을 사용하는 경우가 많아서 축약 표현도 존재한다.
+
+```ruby
+inst_section = {
+  cello: 'string',
+  clarinet: 'woodwind',
+  drum: 'percussion',
+  oboe: 'woodwind',
+  trumpet: 'brass',
+  violin: 'string'
+}
+```
+
+만약 입력을 받을 때 값이 존재할 때만 수행하고 싶다면 아래와 같은 방식을 사용할 수 있다.
+```ruby
+while line = gets
+  puts line.downcase
+end
+```
+
+line 변수에 대입한 것이 nil이 아닐때까지 로직을 수행한다.
+
+if나 while 문 안의 내용이 코드 한줄이라면, 이를 짧게 줄여 쓸 수 있는 구문 변경자를 사용할 수 있다.
+
+```ruby
+# as-is
+if radiation > 3000
+  puts "Danger, Will Robinson"
+end
+
+# to-be
+puts "Danger, Will Robinson" if radiation > 3000
+```
+
+```ruby
+# as-is
+square = 4
+while square < 1000
+  square = square*square
+end
+
+# to-be
+square = 4
+square = square*square while sqaure < 1000
+```
+
+### 정규 표현식
+
+루비는 외부 라이브러리가 아니라 내장 라이브러리를 통해 정규 표현식을 지원한다. (루비, 펄, awk같은 스크립트 언어에서만 기본으로 제공됨)
+정규표현식은 문자열에 매치되는 패턴을 기술하는 방법이다.
+루비이기 때문에 정규 표현식 또한 객체이다.
+
+=~는 특정 문자열이 정규 표현식과 매치되는지 검사하는데 사용한다.
+이 연산자는 문자열에서 패턴이 발견되면 발견된 첫 위치를 반환하며, 그렇지 않을 시 nil을 반환한다.
+
+```ruby
+# Perl 혹은 Python을 포함할 시 메시지 출력
+line = gets
+if line =~ /Perl|Python/
+  puts "Scripting language mentioned: #{line}"
+end
+```
+
+루비의 치환 메서드를 이용하면 정규 표현식으로 찾아낸 문자열의 일부를 다른 문자열로 바꿀 수 있다.
+```ruby
+line = gets
+newline = line.sub(/Perl/, 'Ruby') # 처음 나오는 'Perl'을 'Ruby'로 바꾼다
+newerline = newline.gsub(/Python, 'Ruby') # 모든 'Python'을 'Ruby'로 바꾼다
+```
+
+### 블록과 반복자
+
+코드 블록은 마치 매개 변수처럼 메서드 호출과 결합할 수 있는 코드다.
+코드 블록을 이용해 콜백을 구현할 수 있고, 코드의 일부를 함수에 넘길 수 있고, 반복자를 구현할 수도 있다.
+
+```ruby
+{ puts "Hello"}
+
+do
+  club.enroll(person)
+  person.socialize
+end
+```
+
+두 가지 모두 코드 블록이다.
+중괄호는 do/end 쌍보다 연산자 우선순위가 높다.
+루비의 표준 코드 양식에서는 한 줄의 코드 블록은 중괄호로, 여러 줄의 블록은 do/end를 사용한다.
+
+```ruby
+# puts "Hi"를 실행하는 블록을 greet 메서드 호출과 결합한다
+greet { puts "Hi" }
+
+# 메서드에 매개 변수가 있다면, 블록보다 앞에 써 준다
+verbose_greet("Dave", "loyal customer") { puts "Hi" }
+```
+
+메서드에서는 루비의 yield 문을 이용하여 결합된 코드 블럭을 여러 차례 실행할 수 있다. (Kotlin의 inline는 오버헤드 없음, 컴파일 시 코드가 직접 삽입되지만 Ruby yield는 런타임에 블록 객체 생성과 호출하여 오버헤드가 존재)
+
+```ruby
+# 사용 예시
+def call_block
+  puts "Start of method" # => "Start of method"
+  yield # => "In the block"
+  yield # => "In the block"
+  puts "End of method" # => "End of method"
+end
+
+call_block { puts "In the block" }
+```
+
+블록 안에 있는 코드는 yield 호출 시 실행된다.
+
+yield 문에 인자를 적으면 코드 블록에 이 값이 매개 변수로 전달된다.
+블록 안에서 이러한 매개 변수를 넘겨받기 위해 |params|와 같이 세로 막대 사이에 매개 변수 이름들을 정의한다.
+
+```ruby
+# 메서드가 넘겨받은 블록을 2회 호출하고 이때 블록에 인자를 넘겨준다
+def who_says_what
+  yield("Dave", "hello")
+  yield("Andy", "goodbye")
+end
+
+who_says_what {|person, phrase| puts "#{person} says #{phrase}"}
+
+# => Dave says hello
+# => Andy says goodbye
+```
+
+루비 라이브러리에서는 코드 블록을 반복자(iterator) 구현에 사용된다.
+반복자란 배열 등의 집합에서 구성 요소를 하나씩 반환해 주는 함수를 의미한다.
+
+```ruby
+animals = %w( ant bee cat dog )
+animals.each {|animal| puts animal }
+```
+
+C나 자바에서 기본으로 지원하는 반복(제어)문은 루비에서는 단순히 메서드 호출일 뿐이다.
+
+```ruby
+# 결합된 블록을 여러 차례 반복 수행
+[ 'cat', 'dog', 'horse' ].each {|name| print name, " " }
+5.times { print "*" }
+3.upto(6) {|i| print i }
+('a'..'e').each {|char| print char }
+puts
+```
+
+### 명령행 인자
+
+루비 프로그램을 명령행에서 실행할 때 인자를 넘겨줄 수 있다.
+이렇게 넘겨받은 인자에 접근하는 방법은 ARGV 배열, ARGF를 사용하는 방법이 있다.
+
+```ruby
+puts "You gave #{ARGV.size} arguments"
+p ARGV
+```
+
+```bash
+$ ruby cmd_line.rb ant bee cat dog
+You gave 4 arguments
+["ant", "bee", "cat", "dog"]
+```
+
+대부분의 경우 프로그램에서 넘겨지는 인자는 처리하고자 하는 파일들의 이름이 된다.
+ARGF는 명령행에서 넘겨진 이름을 가진 모든 파일의 내용을 가지고 있는 특수한 I/O 객체이다. (파일 이름을 넘기지 않으면, 표준 입력 사용)
