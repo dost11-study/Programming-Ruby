@@ -288,6 +288,21 @@ look(:east)
 
 심벌에는 값을 직접 부여할 필요없이 루비가 직업 고유한 값을 부여한다.
 프로그램의 어디에서 사용하더라도 특정한 이름의 심벌은 항상 같은 값을 가진다.
+
+```ruby
+# 같은 심벌은 같은 object_id를 가짐
+puts :name.object_id
+puts :name.object_id
+puts :name.object_id
+# 모두 같은 값 출력 (예: 1086748)
+
+# 반면 문자열은 매번 다른 객체
+puts "name".object_id
+puts "name".object_id
+puts "name".object_id
+# 모두 다른 값 출력
+```
+
 따라서 아래와 같이 사용할 수 있다.
 
 ```ruby
